@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartPhone AI Picker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #eef2f3; }
+        .sidebar { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .phone-card { border: none; border-radius: 12px; transition: 0.3s; margin-bottom: 20px; background: white; overflow: hidden; }
+        .phone-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .price-tag { background: #0d6efd; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        .specs-list li { font-size: 0.9rem; color: #555; margin-bottom: 5px; }
+        .btn-find { background: linear-gradient(45deg, #0d6efd, #0056b3); border: none; }
+        .btn-find:hover { background: linear-gradient(45deg, #0b5ed7, #004494); }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="sidebar sticky-top" style="top: 20px;">
+                <h3 class="mb-4 text-primary">Параметры</h3>
+                <form action="/recommend" method="post">
+
+                    <label class="form-label fw-bold">Бюджет (USD)</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">От</span>
+                        <input type="number" name="min_price" class="form-control" value="100" required>
+                        <span class="input-group-text">До</span>
+                        <input type="number" name="max_price" class="form-control" value="300" required>
+                    </div>
+
+                    <label class="form-label fw-bold">RAM (Оперативная память)</label>
+                    <select name="ram" class="form-select mb-3">
+                        <option value="4">4 ГБ</option>
+                        <option value="6">6 ГБ</option>
+                        <option value="8" selected>8 ГБ</option>
+                        <option value="12">12 ГБ</option>
+                        <option value="16">16+ ГБ</option>
+                    </select>
+
+                    <label class="form-label fw-bold">ROM (Встроенная память)</label>
+                    <select name="rom" class="form-select mb-3">
+                        <option value="64">64 ГБ</option>
+                        <option value="128" selected>128 ГБ</option>
+                        <option value="256">256 ГБ</option>
+                        <option value="512">512 ГБ</option>
+                    </select>
+
+                    <label class="form-label fw-bold">Год выпуска</label>
+<select name="year" class="form-select mb-4">
+    <option value="0" selected>Любой год</option>
+    <option value="2025">2025 (Новинки)</option>
+    <option value="2024">2024</option>
+    <option value="2023">2023</option>
+    <option value="2022">2022</option>
+    <option value="2021">2021</option>
+    <option value="2020">2020</option>
+    <option value="2018">Ранее 2020</option>
+</select>
+
+                    <button type="submit" class="btn btn-primary btn-find w-100 py-2">Подобрать модель</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+    <h2 class="mb-4">Результаты подбора</h2>
+
+    {% if error %}
+    <div class="alert alert-warning" role="alert">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if results %}
+        <p class="text-muted mb-4">Найдено лучших вариантов в диапазоне {{ search_params }}:</p>
+        <div class="row">
+            {% for p in results %}
+            <div class="col-md-6">
+                <div class="card phone-card h-100 p-3">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <a href="https://www.google.com/search?q={{ p['Company Name'] }}+{{ p['Model Name'] }}+купить"
+                           target="_blank"
+                           class="text-decoration-none"
+                           >
+
+                            <h5 class="card-title m-0 text-primary">
+                                {{ p['Company Name'] }} {{ p['Model Name'] }}
+                                <small> </small> </h5>
+                        </a>
+                        <span class="price-tag">${{ p['Price_usd']|int }}</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-unstyled specs-list">
+                            <li>🧠 <b>RAM:</b> {{ p['RAM'] }} | <b>ROM:</b> {{ p['ROM_gb']|int }}GB</li>
+                            <li>📷 <b>Камера:</b> {{ p['Back Camera'] }}</li>
+                            <li>🔋 <b>Батарея:</b> {{ p['Battery Capacity'] }}</li>
+                            <li>📅 <b>Год:</b> {{ p['Launched Year'] }}</li>
+                            <li>📱 <b>Экран:</b> {{ p['Screen Size'] }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% elif not error %}
+        <div class="text-center py-5 border rounded bg-white">
+            <p class="text-muted m-0 p-5">Заполните форму слева для поиска</p>
+        </div>
+    {% endif %}
+</div>
+    </div>
+</div>
+
+</body>
+</html>
